@@ -1,7 +1,12 @@
-var builder = WebApplication.CreateBuilder(args);
+using Kamu.Services.Extension;
 
+var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<HttpClient>();
+builder.Services.AddSingleton((_) => configuration.ExtractAppSettings());
 
 var app = builder.Build();
 
@@ -22,6 +27,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}");
 
 app.Run();
