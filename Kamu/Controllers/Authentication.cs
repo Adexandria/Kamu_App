@@ -1,15 +1,25 @@
 ﻿using Kamu.Models;
+using Kamu.Services.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Kamu.Controllers
 {
-    public class Authentication : Controller
+    public class Authentication : BaseController
     {
+        public Authentication(HttpClient httpClient, AppConfiguration appConfiguration) : base(httpClient, appConfiguration)
+        {
+        }
 
         [HttpPost()]
-        public IActionResult Login(LoginViewModel loginDTO)
+        public async Task<IActionResult> Login(LoginViewModel loginDTO)
         {
-            Console.WriteLine(loginDTO.Email);
+            var response = await Client.PostAsync("api/authentication/sign-in", JsonContent.Create(loginDTO));
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<Response<LoginDto>>(responseContent);
+            if(result.NotSuccessful)
+                return RedirectToAction("Index", "Home");
+
             return RedirectToAction("Dashboard","Home");
         }
 
